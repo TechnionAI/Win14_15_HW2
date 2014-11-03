@@ -53,11 +53,13 @@ def main(time_limit, verbose, players_def):
         remaining_run_time = remaining_run_times[curr_player_idx]
         try:
             move, run_time = utils.run_with_limited_time(player.get_action, (game_state, ), {}, remaining_run_time)
+            remaining_run_times[curr_player_idx] -= run_time
+            if remaining_run_times[curr_player_idx] < 0:
+                raise utils.PlayerExceededTimeError
         except utils.PlayerExceededTimeError:
             print('Player {} exceeded time.'.format(player))
             break
 
-        remaining_run_times[curr_player_idx] -= run_time
         possible_actions = gameutils.get_possible_actions(game_state, player)
         if (move, player) not in possible_actions:
             raise Exception('Illegal move by ' + repr(player))
