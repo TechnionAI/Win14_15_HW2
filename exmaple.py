@@ -15,7 +15,7 @@ class Player(abstract.AbstractPlayer):
         while state.board[i][j] is not None:
             i, j = random.randrange(dim), random.randrange(dim)
 
-        return (i, j), self
+        return i, j
 
     def __repr__(self):
         return self.type_

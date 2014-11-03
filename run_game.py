@@ -2,56 +2,78 @@
 """
 from __future__ import print_function
 from sys import argv
-import utils
+import gameutils
 import real_pkg
 import exmaple
+import utils
 
 GAME_MODE_EXAMPLE = 'e'
 GAME_MODE_REAL = 'r'
 
 
-def main(verbose, players_def):
+def setup_player(players, remaining_run_times, time_limit, player_class, type_):
+    exmaple_player, setup_time = utils.run_with_limited_time(player_class, (type_, ), {}, time_limit)
+    players.append(exmaple_player)
+    remaining_run_times.append(time_limit - setup_time)
+
+
+def main(time_limit, verbose, players_def):
     """Main entry point.
 
+    :param time: The float amount of total seconds given to each player. Give 'inf' for unbounded time.
     :param verbose: A boolean (T/F) stating whether to display verbose game progress or not.
     :param players_def: A list of strings defining which player to include in the game. The order in which the list is
-                        given, is the order of the players. The first letter can be 'e' or 'r' for example or real
-                        player respectively. The optional rest of the string will be sent to the constructor of the
-                        player, and can be anything (or nothing) that is parsed by the player.
+                given, is the order of the players. The first letter can be 'e' or 'r' for example or real
+                player respectively. The optional rest of the string will be sent to the constructor of the
+                player, and can be anything (or nothing) that is parsed by the player.
     """
     verbose = verbose.lower() == 't'
+    time_limit = float(time_limit)
+
     players = []
+    remaining_run_times = []
+
     for player in players_def:
         mode = player[0]
         type_ = player[1:]
         if mode == GAME_MODE_EXAMPLE:
-            players.append(exmaple.Player(type_))
+            setup_player(players, remaining_run_times, time_limit, exmaple.Player, type_)
         elif mode == GAME_MODE_REAL:
-            players.append(real_pkg.Player(type_))
+            setup_player(players, remaining_run_times, time_limit, real_pkg.Player, type_)
         else:
             print('bad mode: {}'.format(mode))
             exit()
 
-    game_state = utils.make_initial_state()
+    game_state = gameutils.make_initial_state()
     curr_player_idx = 0
     winner = None
 
     while winner is None:
         player = players[curr_player_idx]
-        move = player.get_action(game_state)
-        if move not in utils.get_possible_actions(game_state, player):
+        remaining_run_time = remaining_run_times[curr_player_idx]
+        try:
+            move, run_time = utils.run_with_limited_time(player.get_action, (game_state, ), {}, remaining_run_time)
+        except utils.PlayerExceededTimeError:
+            print('Player {} exceeded time.'.format(player))
+            break
+
+        remaining_run_times[curr_player_idx] -= run_time
+        possible_actions = gameutils.get_possible_actions(game_state, player)
+        if (move, player) not in possible_actions:
             raise Exception('Illegal move by ' + repr(player))
 
-        game_state.perform_move(move)
+        game_state.perform_move(move, player)
         if verbose:
             game_state.draw()
             print('*' * len(game_state.board))
-        winner = utils.is_final_state(game_state)
+        winner = gameutils.is_final_state(game_state)
         curr_player_idx = (curr_player_idx + 1) % len(players)
 
     print('The winner is ' + repr(winner))
+    if verbose:
+        print('remaining runtimes: {}'.format([(players[i], remaining_run_times[i]) for i in xrange(len(players))]))
 
 
 if __name__ == '__main__':
 
-    main(argv[1], argv[2:])
+    main(argv[1], argv[2], argv[3:])

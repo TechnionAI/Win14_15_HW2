@@ -12,7 +12,7 @@ class AbstractGameState:
     def __init__(self):
         pass
 
-    def perform_move(self, move):
+    def perform_move(self, move, player):
         raise NotImplementedError
 
     def draw(self):
