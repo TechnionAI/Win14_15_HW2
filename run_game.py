@@ -12,15 +12,15 @@ GAME_MODE_REAL = 'r'
 
 
 def setup_player(players, remaining_run_times, time_limit, player_class, type_):
-    exmaple_player, setup_time = utils.run_with_limited_time(player_class, (type_, ), {}, time_limit)
-    players.append(exmaple_player)
+    example_player, setup_time = utils.run_with_limited_time(player_class, (type_, ), {}, time_limit)
+    players.append(example_player)
     remaining_run_times.append(time_limit - setup_time)
 
 
 def main(time_limit, verbose, players_def):
     """Main entry point.
 
-    :param time: The float amount of total seconds given to each player. Give 'inf' for unbounded time.
+    :param time_limit: The float amount of total seconds given to each player. Give 'inf' for unbounded time.
     :param verbose: A boolean (T/F) stating whether to display verbose game progress or not.
     :param players_def: A list of strings defining which player to include in the game. The order in which the list is
                 given, is the order of the players. The first letter can be 'e' or 'r' for example or real
