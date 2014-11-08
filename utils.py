@@ -1,10 +1,14 @@
 """Generic utility functions
 """
-from multiprocessing import Process, Queue
+from __future__ import print_function
+from threading import Thread
+from Queue import Queue
 import time
 
 
-class PlayerExceededTimeError(RuntimeError):
+class ExceededTimeError(RuntimeError):
+    """Thrown when the given function exceeded its runtime.
+    """
     pass
 
 
@@ -34,20 +38,20 @@ def run_with_limited_time(func, args, kwargs, time_limit):
     :raises PlayerExceededTimeError: If player exceeded its given time.
     """
     q = Queue()
-    p = Process(target=function_wrapper, args=(func, args, kwargs, q))
-    p.start()
+    t = Thread(target=function_wrapper, args=(func, args, kwargs, q))
+    t.start()
 
     # This is just for limiting the runtime of the other process, so we stop eventually.
     # It doesn't really measure the runtime.
-    p.join(time_limit * 1.1)
+    t.join(time_limit * 1.1)
 
-    if p.is_alive():
-        p.terminate()
-        raise PlayerExceededTimeError
+    if t.is_alive():
+        raise ExceededTimeError
 
     return q.get()
 
 if __name__ == '__main__':
+    # Testing stuff
     def f(t, s):
         start_time = time.clock()
         while time.clock() - start_time < t:
@@ -55,10 +59,10 @@ if __name__ == '__main__':
                 pass
         return s * 2
 
-    print run_with_limited_time(f, (1.5, 'a'), {}, 2.5)
+    print(run_with_limited_time(f, (1.5, 'a'), {}, 2.5))
     try:
-        print run_with_limited_time(f, (3.5, 'b'), {}, 2.5)
-    except PlayerExceededTimeError:
-        print 'OK'
+        print(run_with_limited_time(f, (3.5, 'b'), {}, 2.5))
+    except ExceededTimeError:
+        print('OK')
 
-    print run_with_limited_time(f, (1.5, 4), {}, float('inf'))
+    print(run_with_limited_time(f, (1.5, 4), {}, float('inf')))
