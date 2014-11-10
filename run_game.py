@@ -24,18 +24,21 @@ def main(time_limit, verbose, white_player, black_player):
     """Main entry point.
 
     :param time_limit: The float amount of total seconds given to each player. Give 'inf' for unbounded time.
-    :param verbose: A boolean (T/F) stating whether to display verbose game progress or not.
+    :param verbose: Indication the level of verbosity of describing the progress of the game.
+        One of the following: (n, t, g) for (no draw, terminal, and gui).
     :param white_player: The name of the module containing the white player. E.g. "myplayer" will invoke an equivalent
         to "import myplayer" in the code.
     :param black_player: Same as 'white_player' parameter, but for the black one.
     """
-    verbose = verbose.lower() == 't'
+    verbose = verbose.lower()
     time_limit = float(time_limit)
 
     players = []
     remaining_run_times = []
 
     # Dynamically importing the players. This allows maximum flexibility and modularity.
+    white_player = 'players.{}'.format(white_player)
+    black_player = 'players.{}'.format(black_player)
     __import__(white_player)
     __import__(black_player)
 
@@ -48,8 +51,7 @@ def main(time_limit, verbose, white_player, black_player):
 
     # Running the actual game loop. Assuming the game ends when someone is left out of moves.
     while True:
-        if verbose:
-            gameutils.draw(game_state)
+        gameutils.draw(game_state, verbose)
 
         player = players[curr_player_idx]
         remaining_run_time = remaining_run_times[curr_player_idx]
@@ -69,12 +71,12 @@ def main(time_limit, verbose, white_player, black_player):
             break
 
         game_state.perform_move(possible_moves[move_idx])
-        if verbose:
+        if verbose in ('t', 'g'):
             print('Player ' + repr(player) + ' performed the move: ' + repr(possible_moves[move_idx]))
         curr_player_idx = (curr_player_idx + 1) % len(players)
 
     print('The winner is ' + repr(winner))
-    if verbose:
+    if verbose in ('t', 'g'):
         print('remaining runtimes: {}'.format([(players[i], remaining_run_times[i]) for i in xrange(len(players))]))
 
 

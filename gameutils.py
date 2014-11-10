@@ -84,7 +84,15 @@ class GameState:
         self.curr_player = WHITE_PLAYER if self.curr_player == BLACK_PLAYER else BLACK_PLAYER
 
 
-def draw(game_state):
+def draw(game_state, verbose):
+    if verbose == 'n':
+        return
+
+    if verbose == 'g':
+        import gui
+        gui.draw_state(game_state, 'gui/game.png', 'gui/Helvetica.ttf')
+        return
+
     max_len = max((len(piece) for piece in game_state.board))
     # This weird string will be used to format the board cells.
     format_str = '{{:2}}:{{:^{}}}'.format(max_len)
