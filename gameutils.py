@@ -8,7 +8,7 @@ WS = 'w'
 WO = 'W'
 BS = 'b'
 BO = 'B'
-EM = ' '
+EM = ''
 WHITE_PLAYER = 'white'
 BLACK_PLAYER = 'black'
 
@@ -59,10 +59,10 @@ class GameState:
         :return: All the legitimate moves for this game state.
         """
         single_soldier_moves = [(i, j) for (i, j) in solder_moves
-                                if self.board[i][0] == solder_color
+                                if self.board[i][:1] == solder_color
                                 and self.board[j] == EM]
         single_officer_moves = [(i, j) for (i, j) in OFFICER_SINGLE_MOVES
-                                if self.board[i][0] == officer_color
+                                if self.board[i][:1] == officer_color
                                 and self.board[j] == EM]
         return single_soldier_moves + single_officer_moves
 
