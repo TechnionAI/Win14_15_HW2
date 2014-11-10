@@ -33,6 +33,34 @@ DOWN_RIGHT_CAPTURE_MOVES = calc_capture_moves(DOWN_RIGHT_SINGLE_MOVES)
 DOWN_LEFT_CAPTURE_MOVES = calc_capture_moves(DOWN_LEFT_SINGLE_MOVES)
 UP_RIGHT_CAPTURE_MOVES = calc_capture_moves(UP_RIGHT_SINGLE_MOVES)
 UP_LEFT_CAPTURE_MOVES = calc_capture_moves(UP_LEFT_SINGLE_MOVES)
+UP_CAPTURE_MOVES = UP_LEFT_CAPTURE_MOVES + UP_RIGHT_CAPTURE_MOVES
+DOWN_CAPTURE_MOVES = DOWN_LEFT_CAPTURE_MOVES + DOWN_RIGHT_CAPTURE_MOVES
+OFFICER_CAPTURE_MOVES = UP_CAPTURE_MOVES + DOWN_CAPTURE_MOVES
+
+
+# Assigning moves to specific players
+SOLDIER_SINGLE_MOVES = {
+    WHITE_PLAYER: UP_SINGLE_MOVES,
+    BLACK_PLAYER: DOWN_SINGLE_MOVES,
+}
+SOLDIER_CAPTURE_MOVES = {
+    WHITE_PLAYER: UP_CAPTURE_MOVES,
+    BLACK_PLAYER: DOWN_CAPTURE_MOVES,
+}
+
+# Assigning colors
+SOLDIER_COLOR = {
+    WHITE_PLAYER: WS,
+    BLACK_PLAYER: BS,
+}
+OFFICER_COLOR = {
+    WHITE_PLAYER: WO,
+    BLACK_PLAYER: BO,
+}
+OPPONENT_COLORS = {
+    WHITE_PLAYER: (BS, BO),
+    BLACK_PLAYER: (WS, WO),
+}
 
 
 class GameState:
@@ -50,35 +78,48 @@ class GameState:
         ]
         self.curr_player = WHITE_PLAYER
 
-    def calc_single_moves(self, solder_moves, solder_color, officer_color):
+    def calc_single_moves(self):
         """Calculation all the possible single moves.
-
-        :param solder_moves: All possible moves for the soldiers of type X.
-        :param solder_color: The character representing soldiers of type X.
-        :param officer_color: The character representing officers of type X.
-        :return: All the legitimate moves for this game state.
+        :return: All the legitimate single moves for this game state.
         """
-        single_soldier_moves = [(i, j) for (i, j) in solder_moves
-                                if self.board[i][:1] == solder_color
+        single_soldier_moves = [(i, j) for (i, j) in SOLDIER_SINGLE_MOVES[self.curr_player]
+                                if self.board[i][:1] == SOLDIER_COLOR[self.curr_player]
                                 and self.board[j] == EM]
         single_officer_moves = [(i, j) for (i, j) in OFFICER_SINGLE_MOVES
-                                if self.board[i][:1] == officer_color
+                                if self.board[i][:1] == OFFICER_COLOR[self.curr_player]
                                 and self.board[j] == EM]
         return single_soldier_moves + single_officer_moves
 
+    def calc_capture_moves(self):
+        capture_soldier_moves = [(i, j, k) for (i, j, k) in SOLDIER_CAPTURE_MOVES[self.curr_player]
+                                 if self.board[i][:1] == SOLDIER_COLOR[self.curr_player]
+                                 and self.board[j][:1] in OPPONENT_COLORS[self.curr_player]
+                                 and self.board[k][:1] == EM]
+        capture_officer_moves = [(i, j, k) for (i, j, k) in OFFICER_CAPTURE_MOVES
+                                 if self.board[i][:1] == OFFICER_COLOR[self.curr_player]
+                                 and self.board[j][:1] in OPPONENT_COLORS[self.curr_player]
+                                 and self.board[k][:1] == EM]
+        return capture_soldier_moves + capture_officer_moves
+
     def get_possible_moves(self):
-        if self.curr_player == WHITE_PLAYER:
-            return self.calc_single_moves(UP_SINGLE_MOVES, WS, WO)
-        else:
-            return self.calc_single_moves(DOWN_SINGLE_MOVES, BS, BO)
+        possible_capture_moves = self.calc_capture_moves()
+        if possible_capture_moves:
+            return possible_capture_moves
+        return self.calc_single_moves()
 
     def perform_move(self, move):
         # Performing the actual move.
         piece = self.board[move[0]]
+        self.board[move[0]] = EM
+
         if len(move) == 2:
             # Single move
-            self.board[move[0]] = EM
             self.board[move[1]] = piece
+
+        else:
+            captured = self.board[move[1]]
+            self.board[move[1]] = captured[1:]
+            self.board[move[2]] = piece + captured[:1]
 
         # Updating the current player.
         self.curr_player = WHITE_PLAYER if self.curr_player == BLACK_PLAYER else BLACK_PLAYER
