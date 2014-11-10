@@ -4,13 +4,14 @@ import ImageDraw
 import ImageFont
 from itertools import cycle
 import gameutils
+from gameconsts import *
 
 
 SQUARE_COLORS = {
-    gameutils.WS: 'white',
-    gameutils.WO: 'green',
-    gameutils.BS: 'black',
-    gameutils.BO: 'red'
+    WS: 'white',
+    WO: 'green',
+    BS: 'black',
+    BO: 'red'
 }
 
 
