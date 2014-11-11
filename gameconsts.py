@@ -57,3 +57,9 @@ OPPONENT_COLORS = {
     WHITE_PLAYER: (BS, BO),
     BLACK_PLAYER: (WS, WO),
 }
+
+# Last lines of board
+LAST_LINE = {
+    WHITE_PLAYER: (0, 1, 2, 3),
+    BLACK_PLAYER: (20, 21, 22, 24),
+}

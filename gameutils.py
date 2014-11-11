@@ -56,11 +56,16 @@ class GameState:
         if len(move) == 2:
             # Single move
             self.board[move[1]] = piece
+            if piece[:1] == SOLDIER_COLOR[self.curr_player] and move[1] in LAST_LINE[self.curr_player]:
+                self.board[move[1]] = OFFICER_COLOR[self.curr_player] + piece[1:]
 
         else:
+            # Capture move
             captured = self.board[move[1]]
             self.board[move[1]] = captured[1:]
             self.board[move[2]] = piece + captured[:1]
+            if piece[:1] == SOLDIER_COLOR[self.curr_player] and move[2] in LAST_LINE[self.curr_player]:
+                self.board[move[2]] = OFFICER_COLOR[self.curr_player] + self.board[move[2]][1:]
 
         # Updating the current player.
         self.curr_player = WHITE_PLAYER if self.curr_player == BLACK_PLAYER else BLACK_PLAYER
