@@ -5,9 +5,10 @@ import sys
 import gameutils
 import utils
 import copy
+from gameconsts import WHITE_PLAYER, BLACK_PLAYER
 
 
-def setup_player(players, remaining_run_times, time_limit, player_class):
+def setup_player(players, remaining_run_times, time_limit, player_class, player_color):
     """ An auxiliary function to populate the players list, and measure setup times on the go.
 
     :param players: The current list of players.
@@ -15,7 +16,7 @@ def setup_player(players, remaining_run_times, time_limit, player_class):
     :param time_limit: The time limit for this players.
     :param player_class: The player class that should be initialized, measured and put into the list.
     """
-    player, setup_time = utils.run_with_limited_time(player_class, (), {}, time_limit)
+    player, setup_time = utils.run_with_limited_time(player_class, (player_color,), {}, time_limit)
     players.append(player)
     remaining_run_times.append(time_limit - setup_time)
 
@@ -42,8 +43,8 @@ def main(time_limit, verbose, white_player, black_player):
     __import__(white_player)
     __import__(black_player)
 
-    setup_player(players, remaining_run_times, time_limit, sys.modules[white_player].Player)
-    setup_player(players, remaining_run_times, time_limit, sys.modules[black_player].Player)
+    setup_player(players, remaining_run_times, time_limit, sys.modules[white_player].Player, WHITE_PLAYER)
+    setup_player(players, remaining_run_times, time_limit, sys.modules[black_player].Player, BLACK_PLAYER)
 
     game_state = gameutils.GameState()
     curr_player_idx = 0

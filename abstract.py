@@ -3,8 +3,8 @@
 
 
 class AbstractPlayer:
-    def __init__(self):
-        pass
+    def __init__(self, color):
+        self.color = color
 
     def get_move(self, game_state, possible_moves):
         """Chooses an action from the given actions.
@@ -14,4 +14,7 @@ class AbstractPlayer:
         :return: The desired index in the list of possible moves.
         """
         raise NotImplementedError
+
+    def __repr__(self):
+        return self.color
 
