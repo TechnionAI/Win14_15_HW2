@@ -58,6 +58,7 @@ def main(time_limit, verbose, white_player, black_player):
         remaining_run_time = remaining_run_times[curr_player_idx]
         try:
             possible_moves = game_state.get_possible_moves()
+            print_if_verbose(verbose, 'Possible moves: {}'.format(possible_moves))
             if not possible_moves:
                 winner = players[0 if curr_player_idx == 1 else 1]
                 break
@@ -67,19 +68,22 @@ def main(time_limit, verbose, white_player, black_player):
             if remaining_run_times[curr_player_idx] < 0:
                 raise utils.ExceededTimeError
         except utils.ExceededTimeError:
-            print('Player {} exceeded time.'.format(player))
+            print_if_verbose(verbose, 'Player {} exceeded time.'.format(player))
             winner = players[0 if curr_player_idx == 1 else 1]
             break
 
         game_state.perform_move(possible_moves[move_idx])
-        if verbose in ('t', 'g'):
-            print('Player ' + repr(player) + ' performed the move: ' + repr(possible_moves[move_idx]))
+        print_if_verbose(verbose, 'Player ' + repr(player) + ' performed the move: ' + repr(possible_moves[move_idx]))
         curr_player_idx = (curr_player_idx + 1) % len(players)
 
     print('The winner is ' + repr(winner))
-    if verbose in ('t', 'g'):
-        print('remaining runtimes: {}'.format([(players[i], remaining_run_times[i]) for i in xrange(len(players))]))
+    print_if_verbose(verbose, 'remaining runtimes: {}'.format([(players[i], remaining_run_times[i])
+                                                               for i in xrange(len(players))]))
 
+
+def print_if_verbose(verbose, out_str):
+    if verbose in ('t', 'g'):
+        print(out_str)
 
 if __name__ == '__main__':
 
