@@ -42,14 +42,54 @@ class GameState:
                                  and self.board[k][:1] == EM]
         return capture_soldier_moves + capture_officer_moves
 
+    def find_following_moves(self, capture_move, move_priviledge):
+        # Temporarily changing the board, simulating the move and checking if there are more to follow.
+        floating_piece = self.board[capture_move[1]]
+        self.board[capture_move[1]] = EM
+        self.board[capture_move[2]] = self.board[capture_move[0]]
+        self.board[capture_move[0]] = EM
+
+        next_moves = [(i, j, k) for (i, j, k) in move_priviledge[capture_move[2]]
+                      if self.board[j][:1] in OPPONENT_COLORS[self.curr_player]
+                      and self.board[k][:1] == EM]
+
+        def return_back_pieces():
+            # Returning the board to its previous state
+            self.board[capture_move[1]] = floating_piece
+            self.board[capture_move[0]] = self.board[capture_move[2]]
+            self.board[capture_move[2]] = EM
+
+        if not next_moves:
+            # This was the final move in a series of moves
+            return_back_pieces()
+            return [capture_move]
+
+        possible_next_moves = []
+        for next_move in next_moves:
+            for move in self.find_following_moves(next_move, move_priviledge):
+                possible_next_moves.append(capture_move + move[1:])
+
+        return_back_pieces()
+        return possible_next_moves
+
     def get_possible_moves(self):
         possible_capture_moves = self.calc_capture_moves()
         if possible_capture_moves:
-            return possible_capture_moves
+            # There is at least one capture move. Let's DFS them!
+            self_curr_player = self.curr_player
+            next_moves = []
+            for capture_move in possible_capture_moves:
+                if self.board[capture_move[0]][:1] == SOLDIER_COLOR[self_curr_player]:
+                    next_moves += self.find_following_moves(capture_move, SOLDIER_CAPTURE_MOVES_FROM[self_curr_player])
+                else:
+                    next_moves += self.find_following_moves(capture_move, OFFICER_CAPTURE_MOVES_FROM)
+
+            return next_moves
+
         return self.calc_single_moves()
 
     def perform_move(self, move):
-        # Performing the actual move.
+        # The first square is always empty after the move.
         piece = self.board[move[0]]
         self.board[move[0]] = EM
 
@@ -61,14 +101,24 @@ class GameState:
 
         else:
             # Capture move
-            captured = self.board[move[1]]
-            self.board[move[1]] = captured[1:]
-            self.board[move[2]] = piece + captured[:1]
-            if piece[:1] == SOLDIER_COLOR[self.curr_player] and move[2] in LAST_LINE[self.curr_player]:
-                self.board[move[2]] = OFFICER_COLOR[self.curr_player] + self.board[move[2]][1:]
+            for (i, j) in [(i, i + 1) for i in xrange(1, len(move), 2)]:
+                captured = self.board[move[i]]
+                self.board[move[i]] = captured[1:]
+                self.board[move[j]] = piece + captured[:1]
+                piece = self.board[move[j]]
+                self.board[move[i - 1]] = EM
+
+                if move[j] in LAST_LINE[self.curr_player] and piece[:1] == SOLDIER_COLOR[self.curr_player]:
+                    # Promoting to officer
+                    self.board[move[j]] = OFFICER_COLOR[self.curr_player] + self.board[move[j]][1:]
 
         # Updating the current player.
         self.curr_player = WHITE_PLAYER if self.curr_player == BLACK_PLAYER else BLACK_PLAYER
+
+
+def draw_state(game_state):
+    import gui
+    gui.draw_state(game_state, 'gui/game.png', 'gui/Helvetica.ttf')
 
 
 def draw(game_state, verbose):
@@ -76,8 +126,7 @@ def draw(game_state, verbose):
         return
 
     if verbose == 'g':
-        import gui
-        gui.draw_state(game_state, 'gui/game.png', 'gui/Helvetica.ttf')
+        draw_state(game_state)
         return
 
     max_len = max((len(piece) for piece in game_state.board))
