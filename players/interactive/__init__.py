@@ -9,6 +9,7 @@ class Player(abstract.AbstractPlayer):
     def get_move(self, game_state, possible_moves):
         print('Available moves: ' + str([i for i in enumerate(possible_moves)]))
         while True:
+            # Trying to get the next move index from the user.
             idx = raw_input('Enter the index of your move: ')
             try:
                 idx = int(idx)

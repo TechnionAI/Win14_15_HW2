@@ -20,7 +20,7 @@ class GameState:
         self.curr_player = WHITE_PLAYER
 
     def calc_single_moves(self):
-        """Calculation all the possible single moves.
+        """Calculating all the possible single moves.
         :return: All the legitimate single moves for this game state.
         """
         single_soldier_moves = [(i, j) for (i, j) in SOLDIER_SINGLE_MOVES[self.curr_player]
@@ -32,6 +32,9 @@ class GameState:
         return single_soldier_moves + single_officer_moves
 
     def calc_capture_moves(self):
+        """Calculating all the possible capture moves, but only the first step.
+        :return: All the legitimate single capture moves for this game state.
+        """
         capture_soldier_moves = [(i, j, k) for (i, j, k) in SOLDIER_CAPTURE_MOVES[self.curr_player]
                                  if self.board[i][:1] == SOLDIER_COLOR[self.curr_player]
                                  and self.board[j][:1] in OPPONENT_COLORS[self.curr_player]
@@ -42,14 +45,19 @@ class GameState:
                                  and self.board[k][:1] == EM]
         return capture_soldier_moves + capture_officer_moves
 
-    def find_following_moves(self, capture_move, move_priviledge):
+    def find_following_moves(self, capture_move, move_privilege):
+        """Given a capture move, return all long capture moves following this one. We do recursive DFS. We also don't
+        replicate the board, but use the same self.board to avoid replication time.
+        :param capture_move: The first 3-tuple that represents the move.
+        :param move_privilege: The list of possible moves for every starting square.
+        """
         # Temporarily changing the board, simulating the move and checking if there are more to follow.
         floating_piece = self.board[capture_move[1]]
         self.board[capture_move[1]] = EM
         self.board[capture_move[2]] = self.board[capture_move[0]]
         self.board[capture_move[0]] = EM
 
-        next_moves = [(i, j, k) for (i, j, k) in move_priviledge[capture_move[2]]
+        next_moves = [(i, j, k) for (i, j, k) in move_privilege[capture_move[2]]
                       if self.board[j][:1] in OPPONENT_COLORS[self.curr_player]
                       and self.board[k][:1] == EM]
 
@@ -66,13 +74,16 @@ class GameState:
 
         possible_next_moves = []
         for next_move in next_moves:
-            for move in self.find_following_moves(next_move, move_priviledge):
+            for move in self.find_following_moves(next_move, move_privilege):
                 possible_next_moves.append(capture_move + move[1:])
 
         return_back_pieces()
         return possible_next_moves
 
     def get_possible_moves(self):
+        """Return a list of possible moves for this state. Each possible move is represented by a list of square
+        numbers.
+        """
         possible_capture_moves = self.calc_capture_moves()
         if possible_capture_moves:
             # There is at least one capture move. Let's DFS them!
@@ -86,6 +97,7 @@ class GameState:
 
             return next_moves
 
+        # There were no capture moves. We return the single moves.
         return self.calc_single_moves()
 
     def perform_move(self, move):
@@ -102,6 +114,7 @@ class GameState:
         else:
             # Capture move
             for (i, j) in [(i, i + 1) for i in xrange(1, len(move), 2)]:
+                # Iterating over the pairs of capture square and destination square.
                 captured = self.board[move[i]]
                 self.board[move[i]] = captured[1:]
                 self.board[move[j]] = piece + captured[:1]
@@ -122,6 +135,10 @@ def draw_state(game_state):
 
 
 def draw(game_state, verbose):
+    """Output the state.
+    :param game_state: The GameState object to output.
+    :param verbose: 'n' for no draw, 'g' for GUI draw, 't' for terminal draw.
+    """
     if verbose == 'n':
         return
 
