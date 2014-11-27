@@ -4,15 +4,15 @@ from gameconsts import *
 
 
 class Player(abstract.AbstractPlayer):
-    def __init__(self, color):
-        abstract.AbstractPlayer.__init__(self, color)
+    def __init__(self, setup_time, player_color, time_per_k_turns, k):
+        abstract.AbstractPlayer.__init__(self, setup_time, player_color, time_per_k_turns, k)
 
     def get_move(self, game_state, possible_moves):
         if len(possible_moves) == 1:
             return 0
 
         minimax = MiniMaxWithAlphaBetaPruning(self.utility, self.color, self.no_more_time)
-        _, move = minimax.search(game_state, 2, -INFINITY, INFINITY, True)
+        _, move = minimax.search(game_state, 10, -INFINITY, INFINITY, True)
         try:
             return possible_moves.index(move)
         except ValueError:

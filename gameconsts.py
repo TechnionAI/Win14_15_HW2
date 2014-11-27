@@ -7,6 +7,7 @@ BO = 'B'
 EM = ''
 WHITE_PLAYER = 'white'
 BLACK_PLAYER = 'black'
+TIE = 'tie'
 
 # Generating the possible single moves. The weird 'if' is making sure we don't go out of board.
 DOWN_RIGHT_SINGLE_MOVES = [(i, i + 4) for i in xrange(25) if i % 7 != 3 and i + 4 < 25]
