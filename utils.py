@@ -44,7 +44,7 @@ def run_with_limited_time(func, args, kwargs, time_limit):
     t = Thread(target=function_wrapper, args=(func, args, kwargs, q))
     t.start()
 
-    # This is just for limiting the runtime of the other process, so we stop eventually.
+    # This is just for limiting the runtime of the other thread, so we stop eventually.
     # It doesn't really measure the runtime.
     t.join(time_limit * 1.1)
 
@@ -97,7 +97,7 @@ class MiniMaxWithAlphaBetaPruning:
                 if minimax_value > best_move_utility:
                     best_move_utility = minimax_value
                     selected_move = move
-                if beta <= alpha:
+                if beta <= alpha or self.no_more_time():
                     break
             return alpha, selected_move
 
@@ -106,7 +106,7 @@ class MiniMaxWithAlphaBetaPruning:
                 new_state = copy.deepcopy(state)
                 new_state.perform_move(move)
                 beta = min(beta, self.search(new_state, depth - 1, alpha, beta, True)[0])
-                if beta <= alpha:
+                if beta <= alpha or self.no_more_time():
                     break
             return beta, None
 

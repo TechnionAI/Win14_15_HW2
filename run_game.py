@@ -15,13 +15,14 @@ class GameRunner:
 
         :param setup_time: Setup time allowed for each player in seconds. Can be a fraction or inf.
         :param time_per_k_turns: Time allowed per k moves in seconds. Can be a fraction or inf.
+            The interactive player always gets infinite time to decide, no matter what.
         :param k: The k turns we measure time on. Must be a positive integer.
-        :param maximum_turns_allowed: Maximum turns allowed, in pairs. E.g. 50 means 100 turns, 50 white and 50 black moves.
-            Can be an integer or inf.
+        :param maximum_turns_allowed: Maximum moves allowed per player. E.g. 50 means 100 moves, 50 white and 50 black
+            moves. Can be an integer or inf.
         :param verbose: The level of verbosity of describing the progress of the game.
             One of the following: (n, t, g) for (no draw, terminal, gui) respectively.
-        :param white_player: The name of the module containing the white player. E.g. "myplayer" will invoke an equivalent
-            to "import myplayer" in the code.
+        :param white_player: The name of the module containing the white player. E.g. "myplayer" will invoke an
+            equivalent to "import players.myplayer" in the code.
         :param black_player: Same as 'white_player' parameter, but for the black one.
         """
 
@@ -72,8 +73,10 @@ class GameRunner:
 
         remaining_run_times = self.remaining_times[:]
         k_count = 0
-        remaining_moves = self.maximum_turns_allowed
-        # Running the actual game loop. Assuming the game ends when someone is left out of moves.
+        turns_elapsed = 0
+
+        # Running the actual game loop. The game ends if someone is left out of moves,
+        # exceeds his time or maximum turns limit was reached.
         while True:
             gameutils.draw(game_state, self.verbose)
 
@@ -106,16 +109,16 @@ class GameRunner:
                     # K rounds completed. Resetting timers.
                     remaining_run_times = self.remaining_times[:]
 
-                remaining_moves -= 1
-                if remaining_moves == 0:
+                turns_elapsed += 1
+                if turns_elapsed == self.maximum_turns_allowed:
                     winner = TIE
                     break
 
-        self.end_game(winner)
+        self.end_game(winner, turns_elapsed)
 
     @staticmethod
-    def end_game(winner):
-        print('The winner is ' + repr(winner))
+    def end_game(winner, turns_elapsed):
+        print('The winner is {}, turns elapsed: {}'.format(winner, turns_elapsed))
         exit()
 
     def handle_time_expired(self, white_player_exceeded, black_player_exceeded):
@@ -128,12 +131,17 @@ class GameRunner:
             winner = self.players[0]
 
         if winner:
-            self.end_game(winner)
+            self.end_game(winner, 0)
 
     def print_if_verbose(self, out_str):
         if self.verbose in ('t', 'g'):
             print(out_str)
 
 if __name__ == '__main__':
-
-    GameRunner(*sys.argv[1:]).run()
+    try:
+        GameRunner(*sys.argv[1:]).run()
+    except TypeError:
+        print("""Syntax: {0} setup_time time_per_k_turns k maximum_turns_allowed verbose white_player black_player
+For example: {0} 3 3 3 50 g interactive simple_player
+Please read the docs in the code for more info.""".
+              format(sys.argv[0]))
