@@ -44,14 +44,26 @@ ___
 
 ###[`players/`](players/)
 Home for all players. Both given as example, and your own player.
-Your submission should be a zip file containing a directory here. It should contain an `__init.py__` so we can import it. It should contain any 3rd party library that is not pip-installable inside the directory structure.
+Your submission should be a zip file containing the directory AI2_123_456. It should contain an `__init__.py` so we can import it. It should contain any 3rd party library that is not pip-installable inside the directory structure.
 For example:
-```submission.zip:
-|- my_player
+```AI2_123_456.zip:
+|- AI2_123_456
    |- __init__.py
-   |- implementations.py
-   |- other_stuff.txt
+   |- player1
+     |- __init__.py
+     |- ...
+   |- player2
+     |- __init__.py
+     |- ...
+   |- player3
+     |- __init__.py
+     |- ...
+   |- competition_player
+     |- __init__.py
+     |- ...
    |- libs.txt
+   |- AI_HW2.pdf
+   |- readme.txt
    |- 3rd_party_lib
       |- __init__.py
       |-...```

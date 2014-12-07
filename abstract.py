@@ -3,6 +3,9 @@
 
 
 class AbstractPlayer:
+    """Your player must inherit from this class, and your player class name must be 'Player', as in the given examples.
+Like this: 'class Player(abstract.AbstractPlayer):'
+    """
     def __init__(self, setup_time, player_color, time_per_k_turns, k):
         """Player initialization.
 
