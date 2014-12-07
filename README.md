@@ -48,7 +48,8 @@ ___
 Home for all players. Both given as example, and your own player.
 Your submission should be a zip file containing the directory AI2_123_456. It should contain an `__init__.py` so we can import it. It should contain any 3rd party library that is not pip-installable inside the directory structure.
 For example:
-```AI2_123_456.zip:
+```
+AI2_123_456.zip:
 |- AI2_123_456
    |- __init__.py
    |- player1
@@ -72,7 +73,8 @@ For example:
 ```
 
 Any pip-installable library you used in your code should be listed in `libs.txt`. Can be empty. Example of this file's contents:
-```matplotlib
+```
+matplotlib
 numpy
 ...
 ```
