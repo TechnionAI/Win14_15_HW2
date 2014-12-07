@@ -1,6 +1,6 @@
 #Homework 2 - Lasca
 
-The PDF for the assignment can found in [docs/AI_HW2.pdf](docs/AI_HW2.pdf?raw=true).
+The PDF for the assignment can found in [`hw2.pdf`](hw2.pdf?raw=true).
 
 This code was written using [PyCharm](https://www.jetbrains.com/pycharm/). I highly recommend it for fast and fun code development. It has a free community edition that should suffice for this exercise.
 
@@ -68,12 +68,14 @@ For example:
    |- readme.txt
    |- 3rd_party_lib
       |- __init__.py
-      |-...```
+      |-...
+```
 
 Any pip-installable library you used in your code should be listed in `libs.txt`. Can be empty. Example of this file's contents:
 ```matplotlib
 numpy
-...```
+...
+```
 
 ####[`players/interactive`](players/interactive)
 The interactive player. Waits for input for every move. Always given an infinite time to run, no matter what the args to `run_game.py` are.
