@@ -142,9 +142,13 @@ def draw(game_state, verbose):
     if verbose == 'n':
         return
 
-    if verbose == 'g':
-        draw_state(game_state)
-        return
+    try:
+        if verbose == 'g':
+            draw_state(game_state)
+            return
+    except IOError:
+        # Fall back to terminal draw
+        pass
 
     max_len = max((len(piece) for piece in game_state.board))
     # This weird string will be used to format the board cells.
