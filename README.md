@@ -19,6 +19,8 @@ This code was written using [PyCharm](https://www.jetbrains.com/pycharm/). I hig
 
 [`gameutils.py`](gameutils.py) Lasca-specific utilities.
 
+[`hw2.pdf`](hw2.pdf) The homework assignment.
+
 [`README.md`](README.md) This file.
 
 [`run_game.py`](run_game.py) The game running engine. Please read this file's docs to understand how you should provide the arguments. This is the file you should run:
