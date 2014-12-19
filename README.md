@@ -71,8 +71,9 @@ AI2_123_456.zip:
       |- __init__.py
       |-...
 ```
+
 To verify that your competition player will not fail to run successfully at the tournament, this command should work in the terminal:
-> ‫‪python‬‬ ‫‪run_game.py‬‬ ‫‪3‬‬ ‫‪3‬‬ ‫‪3‬‬ ‫‪50‬‬ ‫‪t‬‬ ‫‪AI2_123_456.competition_player‬‬ ‫‪simple_player‬‬
+> python run_game.py 3 3 3 50 t AI2_123_456.competition_player simple_player
 >
 
 Any pip-installable library you used in your code should be listed in `libs.txt`. Can be empty. Example of this file's contents:
