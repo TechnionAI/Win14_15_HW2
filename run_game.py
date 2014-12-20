@@ -61,15 +61,17 @@ class GameRunner:
 
     def run(self):
         """The main loop.
+        :return: The winner.
         """
 
         white_player_exceeded = self.setup_player(sys.modules[self.white_player].Player, WHITE_PLAYER)
         black_player_exceeded = self.setup_player(sys.modules[self.black_player].Player, BLACK_PLAYER)
-        self.handle_time_expired(white_player_exceeded, black_player_exceeded)
+        winner = self.handle_time_expired(white_player_exceeded, black_player_exceeded)
+        if winner:
+            return winner
 
         game_state = gameutils.GameState()
         curr_player_idx = 0
-        winner = None
 
         remaining_run_times = self.remaining_times[:]
         k_count = 0
@@ -115,11 +117,11 @@ class GameRunner:
                     break
 
         self.end_game(winner, turns_elapsed)
+        return winner
 
     @staticmethod
     def end_game(winner, turns_elapsed):
         print('The winner is {}, turns elapsed: {}'.format(winner, turns_elapsed))
-        exit()
 
     def handle_time_expired(self, white_player_exceeded, black_player_exceeded):
         winner = None
@@ -132,6 +134,8 @@ class GameRunner:
 
         if winner:
             self.end_game(winner, 0)
+
+        return winner
 
     def print_if_verbose(self, out_str):
         if self.verbose in ('t', 'g'):
