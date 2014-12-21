@@ -25,7 +25,12 @@ def function_wrapper(func, args, kwargs, result_queue):
     :return: A tuple: The function return value, and its runtime.
     """
     start = time.clock()
-    result = func(*args, **kwargs)
+    try:
+        result = func(*args, **kwargs)
+    except MemoryError as e:
+        result_queue.put(e)
+        return
+
     runtime = time.clock() - start
     result_queue.put((result, runtime))
 
@@ -51,7 +56,10 @@ def run_with_limited_time(func, args, kwargs, time_limit):
     if t.is_alive():
         raise ExceededTimeError
 
-    return q.get()
+    q_get = q.get()
+    if isinstance(q_get, MemoryError):
+        raise q_get
+    return q_get
 
 
 class MiniMaxWithAlphaBetaPruning:

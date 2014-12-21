@@ -54,8 +54,12 @@ class GameRunner:
         :param player_color: Player color, passed as an argument to the player.
         :return: A boolean. True if the player exceeded the given time. False otherwise.
         """
-        player, measured_time = utils.run_with_limited_time(
-            player_class, (self.setup_time, player_color, self.time_per_k_turns, self.k), {}, self.setup_time)
+        try:
+            player, measured_time = utils.run_with_limited_time(
+                player_class, (self.setup_time, player_color, self.time_per_k_turns, self.k), {}, self.setup_time)
+        except MemoryError:
+            return True
+
         self.players.append(player)
         return measured_time > self.setup_time
 
@@ -88,16 +92,16 @@ class GameRunner:
                 possible_moves = game_state.get_possible_moves()
                 self.print_if_verbose('Possible moves: {}'.format(possible_moves))
                 if not possible_moves:
-                    winner = self.players[0 if curr_player_idx == 1 else 1]
+                    winner = self.make_winner_result(0 if curr_player_idx == 1 else 1)
                     break
                 move_idx, run_time = utils.run_with_limited_time(
                     player.get_move, (copy.deepcopy(game_state), possible_moves), {}, remaining_run_time)
                 remaining_run_times[curr_player_idx] -= run_time
                 if remaining_run_times[curr_player_idx] < 0:
                     raise utils.ExceededTimeError
-            except utils.ExceededTimeError:
-                self.print_if_verbose('Player {} exceeded time.'.format(player))
-                winner = self.players[0 if curr_player_idx == 1 else 1]
+            except (utils.ExceededTimeError, MemoryError):
+                self.print_if_verbose('Player {} exceeded resources.'.format(player))
+                winner = self.make_winner_result(0 if curr_player_idx == 1 else 1)
                 break
 
             game_state.perform_move(possible_moves[move_idx])
@@ -113,7 +117,7 @@ class GameRunner:
 
                 turns_elapsed += 1
                 if turns_elapsed == self.maximum_turns_allowed:
-                    winner = TIE
+                    winner = self.make_winner_result(-1)
                     break
 
         self.end_game(winner, turns_elapsed)
@@ -121,16 +125,25 @@ class GameRunner:
 
     @staticmethod
     def end_game(winner, turns_elapsed):
-        print('The winner is {}, turns elapsed: {}'.format(winner, turns_elapsed))
+        print('The winner is {}, turns elapsed: {}'.format(winner[0], turns_elapsed))
+
+    def make_winner_result(self, idx):
+        if idx < 0:
+            return TIE, TIE
+
+        if idx == 0:
+            return self.players[0], WHITE_PLAYER
+
+        return self.players[1] if len(self.players) > 1 else BLACK_PLAYER, BLACK_PLAYER
 
     def handle_time_expired(self, white_player_exceeded, black_player_exceeded):
         winner = None
         if white_player_exceeded and black_player_exceeded:
-            winner = TIE
+            winner = self.make_winner_result(-1)
         elif white_player_exceeded:
-            winner = self.players[1]
+            winner = self.make_winner_result(1)
         elif black_player_exceeded:
-            winner = self.players[0]
+            winner = self.make_winner_result(0)
 
         if winner:
             self.end_game(winner, 0)
