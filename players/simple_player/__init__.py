@@ -21,15 +21,15 @@ class Player(abstract.AbstractPlayer):
             return 0
 
         current_depth = 1
-        maximum_alpha = -INFINITY
+        prev_alpha = -INFINITY
 
         # Choosing an arbitrary move:
         best_move = possible_moves[0]
 
         # Iterative deepening until the time runs out.
         while True:
-            print('going to depth: {}, remaining time: {}, maximum_alpha: {}, best_move: {}'.format(
-                current_depth, self.time_per_move - (time.clock() - self.clock), maximum_alpha, best_move))
+            print('going to depth: {}, remaining time: {}, prev_alpha: {}, best_move: {}'.format(
+                current_depth, self.time_per_move - (time.clock() - self.clock), prev_alpha, best_move))
             minimax = MiniMaxWithAlphaBetaPruning(self.utility, self.color, self.no_more_time)
             alpha, move = minimax.search(game_state, current_depth, -INFINITY, INFINITY, True)
 
@@ -37,11 +37,10 @@ class Player(abstract.AbstractPlayer):
                 print('no more time')
                 break
 
-            if alpha > maximum_alpha:
-                maximum_alpha = alpha
-                best_move = move
+            prev_alpha = alpha
+            best_move = move
 
-            if maximum_alpha == INFINITY:
+            if alpha == INFINITY:
                 print('the move: {} will guarantee victory.'.format(best_move))
                 break
 
