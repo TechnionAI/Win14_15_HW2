@@ -95,7 +95,7 @@ class MiniMaxWithAlphaBetaPruning:
             return INFINITY if state.curr_player != self.my_color else -INFINITY, None
 
         if maximizing_player:
-            selected_move = None
+            selected_move = next_moves[0]
             best_move_utility = -INFINITY
             for move in next_moves:
                 new_state = copy.deepcopy(state)
