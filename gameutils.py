@@ -128,6 +128,15 @@ class GameState:
         # Updating the current player.
         self.curr_player = WHITE_PLAYER if self.curr_player == BLACK_PLAYER else BLACK_PLAYER
 
+    def __hash__(self):
+        """This object can be inserted into a set or as dict key. NOTICE: Changing the object after it has been inserted
+        into a set or dict (as key) may have unpredicted results!!!
+        """
+        return hash(','.join(self.board) + self.curr_player)
+
+    def __eq__(self, other):
+        return isinstance(other, GameState) and self.board == other.board and self.curr_player == other.curr_player
+
 
 def draw_state(game_state):
     import gui
@@ -173,7 +182,18 @@ def draw(game_state, verbose):
 if __name__ == '__main__':
     # Testing stuff.
     s = GameState()
-    print(len(s.board))
-    # print(DOWN_RIGHT_MOVES)
-    print([i for i in UP_SINGLE_MOVES])
-    pass
+    s2 = GameState()
+    set1 = {s, s2}
+    dict1 = {s: 1, s2: 3}
+    print(set1, s in set1, s2 in set1)
+    print(dict1)
+    print(hash(s), hash(s2))
+    print(s == s2)
+    s2.board[0] = ''
+    print(hash(s), hash(s2))
+    print(s == s2)
+    set2 = {s, s2}
+    print(set2, s in set2, s2 in set2)
+    dict2 = {s: 1, s2: 3}
+    print(dict2)
+    print(s == 2)
